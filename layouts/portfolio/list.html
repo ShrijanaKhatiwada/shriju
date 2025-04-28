@@ -1,0 +1,90 @@
+{{ define "main" }}
+
+{{ partial "components/modern-page-title.html" . }}
+
+<!-- portfolio -->
+<section class="section position-relative">
+  <!-- Decorative elements -->
+  <div class="portfolio-decoration bubble-1"></div>
+  <div class="portfolio-decoration bubble-2"></div>
+  <div class="portfolio-decoration bubble-3"></div>
+  <div class="portfolio-decoration bubble-4"></div>
+
+  <div class="container">
+    <!-- Portfolio Grid -->
+    <div class="portfolio-grid" id="portfolio-grid">
+      {{ range .RegularPages }}
+      <div class="portfolio-item" data-category="{{range $index, $element:= .Params.categories }}{{if ne $index 0}} {{end}}{{. | urlize}}{{ end }}">
+        <div class="portfolio-image">
+          <img src="{{ .Params.image | absURL }}" alt="{{ .Title }}" loading="lazy">
+        </div>
+        <div class="hover-overlay">
+          <div class="hover-content">
+            <h4 class="project-title">{{ .Title }}</h4>
+            <p class="project-category">{{ delimit .Params.categories ", " }}</p>
+            <a href="{{ .Permalink }}" class="btn">View Project</a>
+          </div>
+        </div>
+        <a href="{{ .Permalink }}" class="portfolio-item-link" aria-label="View {{ .Title }}"></a>
+      </div>
+      {{ end }}
+    </div>
+
+    <!-- Portfolio Filter (Bottom) -->
+    <div class="portfolio-filter-bottom">
+      <span class="filter-label">Filter Projects by Category</span>
+      <div class="filter-buttons">
+        <button class="filter-item active" data-filter="all">All Projects</button>
+        {{ $categories := slice }}
+        {{ range .RegularPages }}
+        {{ range .Params.categories }}
+        {{ $categories = $categories | append . }}
+        {{ end }}
+        {{ end }}
+        {{ range ( $categories | uniq ) }}
+        <button class="filter-item" data-filter="{{ . | urlize }}">{{ . | humanize }}</button>
+        {{ end }}
+      </div>
+    </div>
+  </div>
+</section>
+<!-- /portfolio -->
+
+<section class="section bg-light">
+  <div class="container">
+    {{ partial "components/client-slider.html" . }}
+  </div>
+</section>
+
+<!-- Portfolio Filter JavaScript -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Filter functionality
+    const grid = document.getElementById('portfolio-grid');
+    const items = grid.querySelectorAll('.portfolio-item');
+    const filterButtons = document.querySelectorAll('.portfolio-filter-bottom .filter-item');
+
+    filterButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // Remove active class from all buttons
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+
+        // Add active class to clicked button
+        this.classList.add('active');
+
+        const filterValue = this.getAttribute('data-filter');
+
+        // Show/hide items based on filter
+        items.forEach(item => {
+          if (filterValue === 'all' || item.getAttribute('data-category').includes(filterValue)) {
+            item.style.display = '';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    });
+  });
+</script>
+
+{{ end }}
